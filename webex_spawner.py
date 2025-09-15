@@ -16,13 +16,13 @@ class WebexSpawner:
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-features=ProtocolHandlers")
         options.add_argument("--use-fake-ui-for-media-stream")
-        # options.add_argument("--use-fake-device-for-media-stream")
+        # options.add_argument("--window-size=1080,720")
+        # # options.add_argument("--use-fake-device-for-media-stream")
 
 
         '''
              options.addArguments("--disable-blink-features=AutomationControlled");
             options.addArguments("--use-fake-ui-for-media-stream");
-            options.addArguments("--window-size=1080,720")
             options.addArguments('--auto-select-desktop-capture-source=[RECORD]');
             options.addArguments('--auto-select-desktop-capture-source=[RECORD]');
             options.addArguments('--enable-usermedia-screen-capturing');
@@ -75,7 +75,7 @@ class WebexSpawner:
         print("[Task 5] Waiting for meeting confirmation...")
 
         try:
-            meeting_banner = WebDriverWait(self.driver, 30).until(
+            meeting_banner = WebDriverWait(self.driver, 60*5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//mdc-text[contains(text(), "You\'re now in the meeting")]')
                 )
@@ -177,13 +177,16 @@ class WebexSpawner:
           // Clean up streams
           screenStream.getTracks().forEach(track => track.stop());
           audioStream.getTracks().forEach(track => track.stop());
+
         })
 
         """
-
-        # Execute it in the browser
-        self.driver.execute_script(js_script)
-
+        try:
+            # Execute it in the browser
+            self.driver.execute_script(js_script)
+            print("recording done")
+        except:
+            print("some error occured while recording....")
         
         # keep Selenium alive while recording finishes
         self.driver.implicitly_wait(duration_ms/1000 + 5)
