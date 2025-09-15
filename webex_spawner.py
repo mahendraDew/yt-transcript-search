@@ -15,6 +15,21 @@ class WebexSpawner:
 
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-features=ProtocolHandlers")
+        options.add_argument("--use-fake-ui-for-media-stream")
+        # options.add_argument("--use-fake-device-for-media-stream")
+
+
+        '''
+             options.addArguments("--disable-blink-features=AutomationControlled");
+            options.addArguments("--use-fake-ui-for-media-stream");
+            options.addArguments("--window-size=1080,720")
+            options.addArguments('--auto-select-desktop-capture-source=[RECORD]');
+            options.addArguments('--auto-select-desktop-capture-source=[RECORD]');
+            options.addArguments('--enable-usermedia-screen-capturing');
+            options.addArguments('--auto-select-tab-capture-source-by-title="Meet"')
+            options.addArguments('--allow-running-insecure-content');
+        
+        '''
 
         self.driver = webdriver.Chrome(options=options)
         self.actions = ActionChains(self.driver)
@@ -70,6 +85,110 @@ class WebexSpawner:
         except Exception:
             print("⚠️ Could not confirm meeting entry (banner not found)")
 
+    def start_tab_recording(self, duration_ms=60000):
+        print("[Task 6] Staring the screen recording...")
+
+        js_script = """
+           function wait(delayInMS) {
+            return new Promise((resolve) => setTimeout(resolve, delayInMS));
+        }
+
+        function startRecording(stream, lengthInMS) {
+            let recorder = new MediaRecorder(stream);
+            let data = [];
+            
+            recorder.ondataavailable = (event) => data.push(event.data);
+            recorder.start();
+            
+            let stopped = new Promise((resolve, reject) => {
+                recorder.onstop = resolve;
+                recorder.onerror = (event) => reject(event.name);
+            });
+            
+            let recorded = wait(lengthInMS).then(() => {
+                if (recorder.state === "recording") {
+                recorder.stop();
+                }
+            });
+            
+            return Promise.all([stopped, recorded]).then(() => data);
+        }
+      
+        console.log("before mediadevices")
+        window.navigator.mediaDevices.getDisplayMedia({
+            video: {
+              displaySurface: "browser"
+            },
+            audio: true,
+            preferCurrentTab: true
+        }).then(async screenStream => {                        
+            const audioContext = new AudioContext();
+            const screenAudioStream = audioContext.createMediaStreamSource(screenStream)
+            const audioEl1 = document.querySelectorAll("audio")[0];
+            const audioEl2 = document.querySelectorAll("audio")[1];
+            const audioEl3 = document.querySelectorAll("audio")[2];
+            const audioElStream1 = audioContext.createMediaStreamSource(audioEl1.srcObject)
+            const audioElStream2 = audioContext.createMediaStreamSource(audioEl3.srcObject)
+            const audioElStream3 = audioContext.createMediaStreamSource(audioEl2.srcObject)
+
+            const dest = audioContext.createMediaStreamDestination();
+
+            screenAudioStream.connect(dest)
+            audioElStream1.connect(dest)
+            audioElStream2.connect(dest)
+            audioElStream3.connect(dest)
+
+            // window.setInterval(() => {
+            //   document.querySelectorAll("audio").forEach(audioEl => {
+            //     if (!audioEl.getAttribute("added")) {
+            //       console.log("adding new audio");
+            //       const audioEl = document.querySelector("audio");
+            //       const audioElStream = audioContext.createMediaStreamSource(audioEl.srcObject)
+            //       audioEl.setAttribute("added", true);
+            //       audioElStream.connect(dest)
+            //     }
+            //   })
+
+            // }, 2500);
+          
+          // Combine screen and audio streams
+          const combinedStream = new MediaStream([
+              ...screenStream.getVideoTracks(),
+              ...dest.stream.getAudioTracks()
+          ]);
+          
+          console.log("before start recording")
+          const recordedChunks = await startRecording(combinedStream, 60000);
+          console.log("after start recording")
+          
+          let recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+          
+          // Create download for video with audio
+          const recording = document.createElement("video");
+          recording.src = URL.createObjectURL(recordedBlob);
+          
+          const downloadButton = document.createElement("a");
+          downloadButton.href = recording.src;
+          downloadButton.download = "RecordedScreenWithAudio.webm";    
+          downloadButton.click();
+          
+          console.log("after download button click")
+          
+          // Clean up streams
+          screenStream.getTracks().forEach(track => track.stop());
+          audioStream.getTracks().forEach(track => track.stop());
+        })
+
+        """
+
+        # Execute it in the browser
+        self.driver.execute_script(js_script)
+
+        
+        # keep Selenium alive while recording finishes
+        self.driver.implicitly_wait(duration_ms/1000 + 5)
+
+
     def run(self):
         try:
             self.open_meeting()
@@ -77,8 +196,9 @@ class WebexSpawner:
             self.enter_name()
             self.click_join_meeting()
             self.confirm_meeting_entry()   
-
-            time.sleep(80)  # Keep session alive for now
+            self.start_tab_recording()
+            print('keeping the session alive for 100 sec')
+            time.sleep(100)  # Keep session alive for now
         except Exception as e:
             print("Error:", e)
         finally:
