@@ -14,8 +14,37 @@ class WebexSpawner:
         self.meeting_url = os.getenv("WEBEX_MEETING_URL")
 
         options = webdriver.ChromeOptions()
+
+        # prefs = {
+        #     "profile.default_content_setting_values.media_stream_camera": 2,
+        #     "profile.default_content_setting_values.media_stream_microphone": 2,
+        # }
+
+        # options.add_experimental_option("prefs", prefs)
+        # options.add_argument("--disable-features=ProtocolHandlers")
+        # options.add_argument("--use-fake-ui-for-media-stream")
+        # options.add_experimental_option("prefs", {
+        #     "profile.default_content_setting_values.media_stream_mic": 2,
+        #     "profile.default_content_setting_values.media_stream_camera": 2
+        # })
+
+        # Comprehensive media blocking
+        prefs = {
+            "profile.default_content_setting_values": {
+                "media_stream_mic": 2,
+                "media_stream_camera": 2,
+                "media_stream": 2,
+                # "notifications": 2,
+            }
+        }
+        
+        options.add_experimental_option("prefs", prefs)
         options.add_argument("--disable-features=ProtocolHandlers")
+        # options.add_argument("--deny-permission-prompts")
+        # options.add_argument("--use-fake-device-for-media-stream")
+        # options.add_argument("--disable-user-media-security")
         options.add_argument("--use-fake-ui-for-media-stream")
+
         # options.add_argument("--window-size=1080,720")
         # # options.add_argument("--use-fake-device-for-media-stream")
 
@@ -70,11 +99,18 @@ class WebexSpawner:
         )
         self.actions.click(join_button).perform()
         print("waiting for someone to let me in!")
-
+    
     def confirm_meeting_entry(self):
         print("[Task 5] Waiting for meeting confirmation...")
 
         try:
+            waiting_header = WebDriverWait(self.driver, 60*5).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//mdc-text[contains(text(), "Thanks for waiting. We\'ve let the host know that you\'re here.")]')
+                )
+            )
+            if waiting_header: 
+                self.close_mic_camera()
             meeting_banner = WebDriverWait(self.driver, 60*5).until(
                 EC.presence_of_element_located(
                     (By.XPATH, '//mdc-text[contains(text(), "You\'re now in the meeting")]')
@@ -83,7 +119,31 @@ class WebexSpawner:
             if meeting_banner:
                 print("You are in the meeting")
         except Exception:
-            print("⚠️ Could not confirm meeting entry (banner not found)")
+            print("Could not confirm meeting entry (banner not found)")
+    
+    def close_mic_camera (self): 
+        print("[Task 5.1] closing mic and camera...")
+        # We use cookies to help secure, provide, and improve Webex services.
+        cookies_banner = WebDriverWait(self.driver, 60*5).until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//mdc-text[contains(text(), "We use cookies to help secure, provide, and improve Webex services.")]')
+            )
+        )
+        if cookies_banner:
+            accept_button = WebDriverWait(self.driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, "//mdc-button[normalize-space(text())='Accept']"))
+            )
+            self.actions.click(accept_button).perform()
+
+        mic_button = WebDriverWait(self.driver, 20).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, 'mdc-button[data-test="microphone-button"]'))
+        )
+        self.actions.click(mic_button).perform()
+        camera_button = WebDriverWait(self.driver, 20).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, 'mdc-button[data-test="camera-button"]'))
+        )
+        self.actions.click(camera_button).perform()
+
 
     def start_tab_recording(self, duration_ms=60000):
         print("[Task 6] Staring the screen recording...")
@@ -166,10 +226,15 @@ class WebexSpawner:
           // Create download for video with audio
           const recording = document.createElement("video");
           recording.src = URL.createObjectURL(recordedBlob);
+
+          // Generate file name with date
+          const now = new Date();
+          const dateStr = now.toISOString().split("T")[0]; // e.g. 2025-09-22
+          const fileName = `rec_${dateStr}.webm`;
           
           const downloadButton = document.createElement("a");
           downloadButton.href = recording.src;
-          downloadButton.download = "RecordedScreenWithAudio.webm";    
+          downloadButton.download = "{fileName}.webm";    
           downloadButton.click();
           
           console.log("after download button click")
@@ -204,6 +269,6 @@ class WebexSpawner:
             time.sleep(100)  # Keep session alive for now
         except Exception as e:
             print("Error:", e)
-        finally:
+        finally:    
             pass
             # self.driver.quit()  # Uncomment if you want to close after done
