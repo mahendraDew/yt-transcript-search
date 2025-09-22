@@ -229,12 +229,12 @@ class WebexSpawner:
 
           // Generate file name with date
           const now = new Date();
-          const dateStr = now.toISOString().split("T")[0]; // e.g. 2025-09-22
+          const dateStr = now.toISOString()
           const fileName = `rec_${dateStr}.webm`;
-          
+        
           const downloadButton = document.createElement("a");
           downloadButton.href = recording.src;
-          downloadButton.download = "{fileName}.webm";    
+          downloadButton.download = fileName;
           downloadButton.click();
           
           console.log("after download button click")
