@@ -101,15 +101,23 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 from yt_vid_downloader import YoutubeDownloader;
-
+from speech_recognizer import SpeechRecognition;
 def main(): 
-    yt_downloader = YoutubeDownloader()
-    yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
-    yt_downloader.download_video(yt_link, "downloads")
+    # task 1: download yt video
+    # yt_downloader = YoutubeDownloader()
+    # yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
+    # yt_downloader.download_video(yt_link, "downloads")
 
-
-
+    # task 2: yt video extract the transcript from downloaded vid
+    sr = SpeechRecognition()
+    video_path = "downloads/asdf.mp4"
+    audio_path = sr.extract_audio(video_path)
+    transcript = sr.transcribe_audio(audio_path)
+    print("📝 Transcript:\n", transcript)
 
 
 if __name__ == "__main__":
     main()
+
+
+
