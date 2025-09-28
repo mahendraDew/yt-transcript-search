@@ -6,20 +6,6 @@ import speech_recognition as sr
 import difflib
 class SpeechRecognition:
    
-    # def speech_recognition():
-    #     recognizer = speech_recognition.Recognizer()
-    #     while True:
-    #             try: 
-    #                     with speech_recognition.Microphone() as mic:
-    #                                 recognizer.adjust_for_ambient_noise(mic, duration=0.2)
-    #                                 audio = recognizer.listen(mic)
-    #                                 text = recognizer.recognize_azure(audio)
-    #                                 text = text.lower()
-    #                                 print("recognized : ", text)
-    #                     pass
-    #             except speech_recognition.UnknownValueError(): 
-    #                     recognizer = speech_recognition.Recognizer()
-    #                     continue
 
 
     def extract_audio(self, video_file, audio_file="audio.wav"):
@@ -68,29 +54,29 @@ class SpeechRecognition:
 
         return transcript
     
-    # def search_transcript(self, transcript, query, threshold = 0.6):
-    #     try: 
-    #         query = query.lower()
-    #         matches = []
+    def search_transcript(self, transcript, query, threshold = 0.6):
+        try: 
+            query = query.lower()
+            matches = []
 
-    #         for snippet in transcript.snippets:
-    #             words = snippet.text.lower().split()
-    #             for word in words:
-    #                 similarity = difflib.SequenceMatcher(None, query, word).ratio()
-    #                 if similarity >= threshold:  # fuzzy match
-    #                     ts = int(snippet.start)
-    #                     mins, secs = divmod(ts, 60)
-    #                     timestamp = f"{mins:02d}:{secs:02d}"
-    #                     # yt_link = f"https://www.youtube.com/watch?v={video_id}&t={ts}s"
-    #                     matches.append((snippet.text, timestamp))
-    #                     break  # avoid duplicate match for same snippet
+            for snippet in transcript.snippets:
+                words = snippet.text.lower().split()
+                for word in words:
+                    similarity = difflib.SequenceMatcher(None, query, word).ratio()
+                    if similarity >= threshold:  # fuzzy match
+                        ts = int(snippet.start)
+                        mins, secs = divmod(ts, 60)
+                        timestamp = f"{mins:02d}:{secs:02d}"
+                        # yt_link = f"https://www.youtube.com/watch?v={video_id}&t={ts}s"
+                        matches.append((snippet.text, timestamp))
+                        break  # avoid duplicate match for same snippet
 
-    #         if not matches:
-    #             return [f"Sorry, no results found for query: '{query}'"]
+            if not matches:
+                return [f"Sorry, no results found for query: '{query}'"]
 
-    #         return matches
-    #     except Exception as e:
-    #         return [f"Error while searching transcript: {str(e)}"]
+            return matches
+        except Exception as e:
+            return [f"Error while searching transcript: {str(e)}"]
 
     def search_transcript(self, transcript, query, threshold=0.6):
         try:
