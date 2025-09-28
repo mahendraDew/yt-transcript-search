@@ -41,3 +41,29 @@ class SpeechRecognition:
         except sr.RequestError as e:
             return f"⚠️ Could not request results from Google API; {e}"
 
+
+
+    def transcribe_with_timestamps(self, audio_file, chunk_length=7):
+        recognizer = sr.Recognizer()
+        transcript = []
+
+        with sr.AudioFile(audio_file) as source:
+            duration = int(source.DURATION)
+            print(f"Audio length: {duration} seconds")
+
+            for i in range(0, duration, chunk_length):
+                start = i
+                end = min(i + chunk_length, duration)
+
+                audio = recognizer.record(source, duration=chunk_length)  # sequential read
+
+                try:
+                    text = recognizer.recognize_google(audio)
+                    transcript.append({"start": start, "end": end, "text": text})
+                    print(f"[{start}-{end}s]: {text}")
+                except sr.UnknownValueError:
+                    transcript.append({"start": start, "end": end, "text": "Unintelligible"})
+                except sr.RequestError as e:
+                    transcript.append({"start": start, "end": end, "text": f"API error: {e}"})
+
+        return transcript

@@ -66,10 +66,13 @@ class YoutubeDownloader:
                     'preferedformat': 'mp4'             # ensure conversion to mp4
                 }]
             }
-
+            title = ""
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
-                print(f"Downloaded: {info.get('title')}")
+                title = info.get('title')
+                print(f"Downloaded: {title}")
+                
+            return title
 
         except Exception as e:
             print("unable to download yt video, error occured: ", e)

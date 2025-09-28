@@ -86,7 +86,7 @@
 
 # finally:
 #     pass
-#     # driver.quit()  # close browser when done
+#     # driver.quit()  # close browser when DONE
 
 
 # from webex_spawner import WebexSpawner
@@ -104,16 +104,27 @@ from yt_vid_downloader import YoutubeDownloader;
 from speech_recognizer import SpeechRecognition;
 def main(): 
     # task 1: download yt video
-    # yt_downloader = YoutubeDownloader()
-    # yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
-    # yt_downloader.download_video(yt_link, "downloads")
-
+    print("TASK 1: Downloading youtube video...")
+    yt_downloader = YoutubeDownloader()
+    yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
+    yt_link_nn = "https://www.youtube.com/watch?v=9GJ6XeB-vMg";
+    yt_link_py_1min = "https://www.youtube.com/watch?v=vE7Cy5csYbQ";
+    title = yt_downloader.download_video(yt_link_py_1min, "downloads")
+    print(f"DONE: downloaded yt video: {title}")
+    # print (title)
     # task 2: yt video extract the transcript from downloaded vid
+    print("TASK 2: Transcribing the downloaded video...")
     sr = SpeechRecognition()
-    video_path = "downloads/asdf.mp4"
+    video_path = "downloads/Python in 2 Minutes!.mp4"
+    print("TASK 2.1: extracting audio...")
     audio_path = sr.extract_audio(video_path)
-    transcript = sr.transcribe_audio(audio_path)
-    print("📝 Transcript:\n", transcript)
+    print("DONE 2.1: extracted the audio...")
+    # transcript = sr.transcribe_audio(audio_path)
+    print("TASK 2.2: extracting text from audio...")
+    transcript_ts = sr.transcribe_with_timestamps(audio_path)  # 30s per chunk
+    print("DONE 2.2: extracted the text...")
+    print("-----------------------------------")
+    print("Transcript:\n", transcript_ts)
 
 
 if __name__ == "__main__":
