@@ -102,20 +102,27 @@
 
 from yt_vid_downloader import YoutubeDownloader;
 from speech_recognizer import SpeechRecognition;
+import subprocess
+
 def main(): 
     # task 1: download yt video
-    print("TASK 1: Downloading youtube video...")
-    yt_downloader = YoutubeDownloader()
-    yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
-    yt_link_nn = "https://www.youtube.com/watch?v=9GJ6XeB-vMg";
-    yt_link_py_1min = "https://www.youtube.com/watch?v=vE7Cy5csYbQ";
-    title = yt_downloader.download_video(yt_link_py_1min, "downloads")
-    print(f"DONE: downloaded yt video: {title}")
-    # print (title)
+    # print("TASK 1: Downloading youtube video...")
+    # yt_downloader = YoutubeDownloader()
+    # yt_link = input("Enter yt link: ")
+    # # yt_link = "https://www.youtube.com/watch?v=8of5w7RgcTc";
+    # yt_link_nn = "https://www.youtube.com/watch?v=9GJ6XeB-vMg";
+    # yt_link_py_1min = "https://www.youtube.com/watch?v=vE7Cy5csYbQ";
+    
+    # title = yt_downloader.download_video(yt_link, "downloads")
+    # print(f"DONE: downloaded yt video: {title}")
+    # # print (title)
+
+
     # task 2: yt video extract the transcript from downloaded vid
     print("TASK 2: Transcribing the downloaded video...")
     sr = SpeechRecognition()
-    video_path = "downloads/Python in 2 Minutes!.mp4"
+    # video_path = f"downloads/{title}.mp4"
+    video_path = f"downloads/Python in 2 Minutes!.mp4"
     print("TASK 2.1: extracting audio...")
     audio_path = sr.extract_audio(video_path)
     print("DONE 2.1: extracted the audio...")
@@ -124,7 +131,50 @@ def main():
     transcript_ts = sr.transcribe_with_timestamps(audio_path)  # 30s per chunk
     print("DONE 2.2: extracted the text...")
     print("-----------------------------------")
-    print("Transcript:\n", transcript_ts)
+    # print("Transcript:\n", transcript_ts)
+
+
+    if transcript_ts:
+        # video_title = get_video_title(video_id)
+        # file_name = f"{video_id}_{video_title}.txt"
+        # file_name = re.sub(r'[\\/*?:"<>|]', '', file_name)  # Remove invalid characters
+        # print("transcript found: " , fetched_transcript)
+        print('transcript found.')
+        search_topic = input("Enter a keyword to search: ")
+        # try:
+        #     for res in results:
+        #         print(f"[{res['timestamp']}] {res['text']}")
+        #         print(f"Link: {res['yt_link']}\n")
+        #     print("Task 2: timestamp(s):")
+        print('Task 3 : searching for query: ', search_topic)
+        results = sr.search_transcript(transcript_ts, search_topic)
+        # print("results: ", results)
+        # for text, ts,  in results:
+        #     print(f"Found at {ts} -> Snippet: {text} \n")
+
+
+        for match in results:
+            print(match)
+            if "error" in match:
+                print(match["error"])
+            else:
+                print(f"Found at {match['timestamp']} -> {match['snippet']}")
+                choice = input(f"Open video at {match['timestamp']}? (y/n): ")
+                if choice.lower() == "y":
+                    open_video_at_timestamp(video_path, match["seconds"])
+
+    else:
+            print("Unable to download transcript.")
+    # else:
+    #     print("Invalid YouTube URL.")
+
+
+def open_video_at_timestamp(video_path, seconds):
+    """Open video in VLC at a specific timestamp"""
+    try:
+        subprocess.run(["vlc", f"--start-time={seconds}", video_path])
+    except FileNotFoundError:
+        print("VLC not found! Please install VLC or add it to PATH.")
 
 
 if __name__ == "__main__":

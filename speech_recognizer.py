@@ -3,7 +3,7 @@ import pyttsx3
 
 import subprocess
 import speech_recognition as sr
-
+import difflib
 class SpeechRecognition:
    
     # def speech_recognition():
@@ -37,9 +37,9 @@ class SpeechRecognition:
             text = recognizer.recognize_google(audio)  # Uses Google Web Speech API
             return text
         except sr.UnknownValueError:
-            return "❌ Speech Recognition could not understand the audio"
+            return "Speech Recognition could not understand the audio"
         except sr.RequestError as e:
-            return f"⚠️ Could not request results from Google API; {e}"
+            return f"Could not request results from Google API; {e}"
 
 
 
@@ -67,3 +67,55 @@ class SpeechRecognition:
                     transcript.append({"start": start, "end": end, "text": f"API error: {e}"})
 
         return transcript
+    
+    # def search_transcript(self, transcript, query, threshold = 0.6):
+    #     try: 
+    #         query = query.lower()
+    #         matches = []
+
+    #         for snippet in transcript.snippets:
+    #             words = snippet.text.lower().split()
+    #             for word in words:
+    #                 similarity = difflib.SequenceMatcher(None, query, word).ratio()
+    #                 if similarity >= threshold:  # fuzzy match
+    #                     ts = int(snippet.start)
+    #                     mins, secs = divmod(ts, 60)
+    #                     timestamp = f"{mins:02d}:{secs:02d}"
+    #                     # yt_link = f"https://www.youtube.com/watch?v={video_id}&t={ts}s"
+    #                     matches.append((snippet.text, timestamp))
+    #                     break  # avoid duplicate match for same snippet
+
+    #         if not matches:
+    #             return [f"Sorry, no results found for query: '{query}'"]
+
+    #         return matches
+    #     except Exception as e:
+    #         return [f"Error while searching transcript: {str(e)}"]
+
+    def search_transcript(self, transcript, query, threshold=0.6):
+        try:
+            query = query.lower()
+            matches = []
+
+            for snippet in transcript:  # transcript is now a list of dicts
+                words = snippet["text"].lower().split()
+                for word in words:
+                    similarity = difflib.SequenceMatcher(None, query, word).ratio()
+                    if similarity >= threshold:  # fuzzy match
+                        ts = int(snippet["start"])
+                        mins, secs = divmod(ts, 60)
+                        timestamp = f"{mins:02d}:{secs:02d}"
+                        # matches.append((snippet["text"], timestamp, ts))
+                        matches.append({
+                            "snippet": snippet["text"],
+                            "timestamp": timestamp,
+                            "seconds": ts
+                        })
+                        break  # avoid duplicate match for same snippet
+
+            if not matches:
+                return [f"Sorry, no results found for query: '{query}'"]
+
+            return matches
+        except Exception as e:
+            return [f"Error while searching transcript: {str(e)}"]
