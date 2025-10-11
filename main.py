@@ -3,6 +3,7 @@ from yt_vid_downloader import YoutubeDownloader;
 from speech_recognizer import SpeechRecognition;
 import subprocess
 from ask_meet import SemanticSearching;
+from rag import TranscriptRAGAgent;
 def main(): 
     # task 1: download yt video
     print("TASK 1: Downloading youtube video...")
@@ -60,10 +61,12 @@ def open_video_at_timestamp(video_path, seconds):
 
 def controller(transcript, vid_path):
     while True:
+        print("\n")
         print("1. search for a specific phrase and get timestamp?")
         print("2. semantic search")
-        print("3. to exit.")
-        option = int(input("Enter 1, 2 or 3:"))
+        print("3. RAG search/gen")
+        print("4. to exit.")
+        option = int(input("Enter 1, 2 and 3 or 4 to exit:"))
         if option == 1:
             sr = SpeechRecognition()
 
@@ -83,15 +86,24 @@ def controller(transcript, vid_path):
 
             for match in results:
                 # print(match)
-                if "error" in match:
-                    print(match["error"])
-                else:
-                    # print("\n")
+                if isinstance(match, dict): 
                     print(f"Found at {match['timestamp']} -> {match['snippet']}")
                     print("\n")
                     choice = input(f"Open video at {match['timestamp']}? (y/n): ")
                     if choice.lower() == "y":
                         open_video_at_timestamp(vid_path, match["seconds"])
+                else:
+                    # match is probably a string (error or no result)
+                    print(match)
+                # if "error" in match:
+                #     print(match["error"])
+                # else:
+                #     print("this is match::::", match)
+                #     print(f"Found at {match['timestamp']} -> {match['snippet']}")
+                #     print("\n")
+                #     choice = input(f"Open video at {match['timestamp']}? (y/n): ")
+                #     if choice.lower() == "y":
+                #         open_video_at_timestamp(vid_path, match["seconds"])
         
         elif option == 2:
             print("")
@@ -101,6 +113,14 @@ def controller(transcript, vid_path):
             #perform a semantic search
             sem_searching = SemanticSearching()
             asyncio.run(sem_searching.semanticSearch(transcript, search_query))
+        elif option == 3:
+            print("")
+            print('Task 4 : rag search')
+            search_query = input("Enter a query to search: ")
+
+            #perform a semantic search
+            rag_agent = TranscriptRAGAgent()
+            rag_agent.create_agent(transcript, search_query)
 
         else:
             break

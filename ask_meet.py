@@ -60,7 +60,7 @@ class SemanticSearching:
 
         vector_1 = embeddings.embed_query(all_splits[1].page_content)
 
-        print(f"Generated vectors of length {len(vector_1)}\n")
+        # print(f"Generated vectors of length {len(vector_1)}\n")
         # print(vector_1)
 
         # print(vector_1[:10])
@@ -86,8 +86,8 @@ class SemanticSearching:
         # que ="what are the primary need that langchain aims to address?" 
         results = await vector_store.asimilarity_search(search_query)
 
-        print(".........ans...........")
-        print(results[0])
+        print('------------ans to your query: "', search_query , '" ------------')
+        print(results[0].page_content)
 
 
 
