@@ -1,97 +1,115 @@
 
 # YouTube Video Transcript Search Tool
 
-This project is a Python-based tool that makes it easy to **search for any phrase inside a YouTube video** and **instantly replay** the exact part where it’s discussed.
-
-It downloads a YouTube video, extracts its transcript using speech recognition, and allows you to search for keywords or perform **semantic searches**. The program then returns the **timestamp** and a **direct link** to that moment in the downloaded video.
+This is a Python-based tool that makes it easy to search inside YouTube videos and instantly replay the exact moments of interest. With the latest RAG AI search integration, you can now **ask questions and get answers based on the video content itself**.
 
 ----------
 
-##  Features
+## Main Features
 
--   **YouTube Video Downloader** – Downloads videos with audio using `yt-dlp` and `ffmpeg`.
+### 1. RAG AI Search
+
+-   **Retrieve & Generate Answers from Context:** Enter a query, and the tool finds relevant parts of the transcript, extracts context, and generates an answer using RAG (Retrieval-Augmented Generation).
     
--   **Automatic Transcription** – Converts video to audio and generates a text transcript with timestamps using `SpeechRecognition`.
+-   Useful for deep queries like: _“What did they say about Python libraries?”_ (discussed in the meeting/yt)
     
--   **Keyword & Semantic Search** – Search for exact keywords or use **semantic search** to find related phrases and meanings using embeddings.
-    
--   **Timestamp Linking** – Opens the downloaded video directly at the moment where the phrase is spoken.
-    
--   **AI Integration (Future Scope)** – Can be enhanced with LLMs to enable conversational queries such as “What did they say about X?” — basically, _chat with your video_.
+-   Powered by **LangChain** and **Gemini/LLM embeddings**.
     
 
-----------
+### 2. Timestamp Linking
 
-##  Tech Stack
+-   Finds exactly where a keyword or phrase is spoken using **fuzzy matching**.
+    
+-   Opens the downloaded video directly at that timestamp — no need to jump between timestamps.
+    
 
--   **Python 3.10+**
+### 3. Semantic Search
+
+-   Understands the **meaning of your query** and finds contextually relevant matches.
     
--   [yt-dlp](https://github.com/yt-dlp/yt-dlp?utm_source=chatgpt.com)
+-   Even if the exact words don’t appear, it can locate answers with similar phrasing or concepts.
     
--   [ffmpeg](https://ffmpeg.org/)
-    
--   [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
-    
--   [pydub](https://pypi.org/project/pydub/)
-    
--   LangChain – for LLM and **semantic search**
-       
 
 ----------
 
-##  How It Works
+## How It Works
 
-###  Step 1: Download the YouTube Video
+### Step 1: Download the YouTube Video
 
 `download_video("https://www.youtube.com/watch?v=example")` 
 
-Downloads the video with best audio + video quality and merges them into a single `.mp4` file.
+Downloads the video in the best audio+video quality and saves it locally.
 
-----------
-
-###  Step 2: Generate Transcript
+### Step 2: Generate Transcript
 
 `transcribe_with_timestamps("downloads/video.mp4")` 
 
-Converts the video to audio and transcribes it into text chunks with timestamps.
+Converts video to audio and generates a transcript with timestamps.
 
-----------
+### Step 3: Search & Get Context
 
-###  Step 3: Search the Transcript
-
+#### Keyword Search:
+- You can search for a particular keyword or phrase 
 `search_transcript(transcript, query="negative indexing")` 
 
-Finds all instances where the phrase appears and returns:
+Returns timestamps and snippet of the transcript:
 
 `Found at 01:45 → "Python supports negative indexing..."` 
 
-You can also open the local video at that timestamp.
+You can also open the video at that timestamp.
 
-----------
+>NOTE: Finds all instances of a keyword or phrase in the transcript using **fuzzy matching**
 
-###  Step 4: Perform Semantic Search
+#### RAG AI Search:
+- The tool searches relevant transcript sections and generates a contextual answer.
 
-In addition to keyword matching, the program supports **semantic search** using embeddings.  
-This means it can find results **even if the exact words don’t match** — for example, searching for  
-“AI models” will still match sentences containing “machine learning systems.”
+#### Semantic Search:
 
-----------
-
-##  Future Enhancements
+-   Finds results even if exact keywords aren’t present.
     
--   Implement a **Webex meeting** version — allowing users to search and replay exact discussion points in recorded meetings.
-    
+-   Example: Searching for _“AI models”_ can match sentences like _“machine learning systems”_.
     
 
 ----------
 
-##  Example Use Case
+## Future Enhancements
 
-> Imagine watching a 1-hour tech talk on YouTube — instead of scrubbing through the timeline, just type  
-> **“machine learning”**, and jump straight to the part where it’s mentioned.  
-> You can even perform **semantic searches** like “AI models” or “neural networks” to find related discussions.
+-   **Video Platform Integration:** This same feature can be implemented in any video recording application, like Webex or MS Teams, allowing users to search through recorded meetings and instantly jump to the exact moments where specific topics were discussed. Additionally, by integrating an LLM, users can ask questions about the meeting content and get contextual answers, effectively “chatting” with the recording to clarify or explore topics in more detail.    
+-   Expand RAG AI functionality to handle **full conversational queries** across videos or meetings.
+    
 
 ----------
+
+## Example Use Case
+
+Imagine a 1-hour YouTube tech talk. Instead of scrubbing through the timeline, just type:
+
+-   **Keyword:** `"machine learning"` → jumps to the exact part.
+    
+-   **Semantic Search:** `"AI models"` → finds related discussions.
+    
+-   **RAG Query:** `"Explain LangChain in this video"` → generates a detailed answer from the transcript.
+    
+
+----------
+
+## Tech Stack
+
+-   Python 3.10+
+    
+-   yt-dlp
+    
+-   ffmpeg
+    
+-   SpeechRecognition
+        
+-   LangChain (LLM + RAG + Semantic Search)
+    
+-   Gemini (LLM Embeddings)
+    
+
+----------
+
 
 ##  Quick Setup
 
