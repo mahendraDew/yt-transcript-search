@@ -7,6 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 # from langchain_ollama import OllamaEmbeddings
 # from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_core.vectorstores import InMemoryVectorStore
 
 from dotenv import load_dotenv
 import os
@@ -75,7 +76,6 @@ class SemanticSearching:
 
 
         #4. storing the generated vectors - in memory by creating a vector_store
-        from langchain_core.vectorstores import InMemoryVectorStore
 
 
         vector_store = InMemoryVectorStore(embeddings)  # this is just creating a vector storage named 'vector_store" and it will create a vector store according to the "embeddings" so that later when you store 'embedding' and corresponding document in this, it'll be commpatible to that
