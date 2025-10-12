@@ -85,7 +85,7 @@ class SemanticSearching:
         
         # que ="what are the primary need that langchain aims to address?" 
         results = await vector_store.asimilarity_search(search_query)
-
+        print('\n')
         print('------------ans to your query: "', search_query , '" ------------')
         print(results[0].page_content)
 

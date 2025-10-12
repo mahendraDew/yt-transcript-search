@@ -22,7 +22,7 @@ GEMINI_API = os.getenv("GEMINI_API")
 class TranscriptRAGAgent:
 
     def create_agent(self, transcript, query):
-        print("hi there")
+        # print("hi there")
 
     
         #1. load the txt file
@@ -35,7 +35,7 @@ class TranscriptRAGAgent:
         #with tranctipt
         transcript_text = " ".join([item['text'] for item in transcript])
         docs = [Document(page_content=transcript_text)]
-        print(len(docs))
+        # print(len(docs))
 
 
 
