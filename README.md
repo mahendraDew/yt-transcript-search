@@ -3,7 +3,18 @@
 
 This is a Python-based tool that makes it easy to search inside YouTube videos and instantly replay the exact moments of interest. With the latest RAG AI search integration, you can now **ask questions and get answers based on the video content itself**.
 
-----------
+## Demo
+> ⚠️ Note: This demo video is compressed to meet GitHub size limits, so audio and video quality may be reduced.
+
+### Iteration 2:
+
+https://github.com/user-attachments/assets/aaca315f-7e09-43d9-876e-478ae23ba6b0
+
+### Iteration 1:
+
+
+https://github.com/user-attachments/assets/6d3df683-59f2-49f9-aec3-79fb3780f276
+
 
 ## Main Features
 
